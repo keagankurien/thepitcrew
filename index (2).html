@@ -1,0 +1,494 @@
+<div id="app">
+  <div class="boot" id="boot">
+    <span class="boot-text">establishing channel…</span>
+  </div>
+</div>
+
+<style>
+  :root{
+    --bg:#11151a;
+    --bg-grid:#161c23;
+    --panel:#1a2029;
+    --panel-2:#1f2630;
+    --border:#2a323d;
+    --text:#e8eaed;
+    --text-dim:#8b95a1;
+    --text-faint:#5b6470;
+    --innovation:#e8a23d;
+    --operations:#5b8db8;
+    --marketing:#4fb8ae;
+    --hr:#9b7fd4;
+    --finance:#5fae7c;
+    --marketintel:#e0735c;
+    --general:#c9cdd3;
+    --font-display: 'Courier New', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;}
+  #app{
+    background:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px) 0 0 / 100% 28px,
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    min-height:100%;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+
+  .boot{
+    padding:60px 20px;
+    text-align:center;
+    font-family:var(--font-display);
+    color:var(--text-dim);
+    letter-spacing:0.08em;
+    font-size:13px;
+  }
+
+  /* ---------- header ---------- */
+  .head{
+    padding:18px 22px 16px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .head-left .eyebrow{
+    font-family:var(--font-display);
+    font-size:11px;
+    letter-spacing:0.18em;
+    color:var(--text-faint);
+    text-transform:uppercase;
+  }
+  .head-left h1{
+    font-family:var(--font-display);
+    font-size:20px;
+    letter-spacing:0.04em;
+    margin:4px 0 2px;
+    font-weight:700;
+  }
+  .head-left .sub{
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .head-right{
+    text-align:right;
+    font-family:var(--font-display);
+    font-size:11px;
+    color:var(--text-faint);
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    align-items:flex-end;
+  }
+  .sync-row{display:flex;align-items:center;gap:6px;}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:#5fae7c;box-shadow:0 0 6px #5fae7c;}
+  .sync-dot.syncing{background:#e8a23d;box-shadow:0 0 6px #e8a23d;animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .refresh-btn{
+    font-family:var(--font-display);
+    font-size:11px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:5px 10px;
+    border-radius:5px;
+    cursor:pointer;
+    letter-spacing:0.05em;
+  }
+  .refresh-btn:hover{color:var(--text);border-color:var(--text-faint);}
+
+  /* ---------- tabs ---------- */
+  .tabs{
+    display:flex;
+    gap:2px;
+    padding:10px 16px 0;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--border);
+  }
+  .tab{
+    font-family:var(--font-display);
+    font-size:11.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:9px 14px 11px;
+    background:transparent;
+    border:none;
+    color:var(--text-faint);
+    cursor:pointer;
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .tab .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .tab.active{color:var(--text);}
+  .tab.active::after{
+    content:'';
+    position:absolute;
+    left:14px;right:14px;bottom:0;
+    height:2px;
+    background:var(--tab-color, var(--text));
+  }
+  .tab .count{
+    color:var(--text-faint);
+    font-size:10px;
+  }
+
+  /* ---------- body ---------- */
+  .body{padding:18px 22px 22px;}
+
+  .panel-label{
+    font-family:var(--font-display);
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--text-faint);
+    text-transform:uppercase;
+    margin-bottom:10px;
+    padding-bottom:8px;
+    border-bottom:1px dashed var(--border);
+  }
+
+  .empty{
+    color:var(--text-faint);
+    font-size:13px;
+    padding:28px 0;
+    text-align:center;
+    font-family:var(--font-display);
+    letter-spacing:0.03em;
+  }
+
+  .entries{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .entry{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-left:3px solid var(--cat-color, var(--general));
+    border-radius:6px;
+    padding:11px 14px;
+  }
+  .entry-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:5px;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .entry-author{
+    font-family:var(--font-display);
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--text);
+    letter-spacing:0.03em;
+  }
+  .entry-time{
+    font-family:var(--font-display);
+    font-size:10.5px;
+    color:var(--text-faint);
+  }
+  .entry-text{
+    font-size:13.5px;
+    line-height:1.5;
+    color:var(--text);
+    white-space:pre-wrap;
+  }
+
+  /* ---------- form ---------- */
+  .form{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:14px;
+  }
+  .form-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+  .form input[type=text]{
+    flex:1;
+    min-width:140px;
+    background:var(--bg);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:8px 10px;
+    border-radius:5px;
+    font-family:var(--font-body);
+    font-size:13px;
+  }
+  .form textarea{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:9px 10px;
+    border-radius:5px;
+    font-family:var(--font-body);
+    font-size:13.5px;
+    resize:vertical;
+    min-height:56px;
+    margin-bottom:10px;
+  }
+  .form input:focus,.form textarea:focus{
+    outline:none;
+    border-color:var(--text-faint);
+  }
+  .form-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .form-hint{font-size:11px;color:var(--text-faint);}
+  .submit-btn{
+    font-family:var(--font-display);
+    font-size:12px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    background:var(--cat-color, var(--text));
+    color:#11151a;
+    border:none;
+    padding:9px 16px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .submit-btn:disabled{opacity:0.5;cursor:default;}
+  .submit-btn:hover:not(:disabled){filter:brightness(1.1);}
+
+  .footer-note{
+    text-align:center;
+    font-size:11px;
+    color:var(--text-faint);
+    padding:14px 22px 18px;
+    font-family:var(--font-display);
+    letter-spacing:0.03em;
+  }
+  .reset-link{
+    color:var(--text-faint);
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:var(--font-display);
+    font-size:11px;
+  }
+
+  @media (max-width: 520px){
+    .head{flex-direction:column;}
+    .head-right{align-items:flex-start;text-align:left;}
+  }
+</style>
+
+<script>
+(function(){
+
+  var CATEGORIES = [
+    { id:'innovation',  label:'Innovation',   color:'var(--innovation)' },
+    { id:'operations',  label:'Operations',   color:'var(--operations)' },
+    { id:'marketing',   label:'Marketing',    color:'var(--marketing)' },
+    { id:'hr',          label:'HR',           color:'var(--hr)' },
+    { id:'finance',     label:'Finance',      color:'var(--finance)' },
+    { id:'marketIntel', label:'Market Intel', color:'var(--marketintel)' },
+    { id:'general',     label:'General',      color:'var(--general)' }
+  ];
+
+  var STORAGE_KEY = 'voltwagen-team-channel-v1';
+  var activeTab = 'innovation';
+  var board = null;
+  var pollHandle = null;
+
+  function defaultBoard(){
+    var now = Date.now();
+    return {
+      innovation: [],
+      operations: [],
+      marketing: [],
+      hr: [],
+      finance: [],
+      marketIntel: [
+        {
+          id:'seed-1',
+          author:'Marketing Lead',
+          text:'Europe is the strongest market for hybrid/EV demand right now. Within electric specifically, compact electric is the most preferred class in Europe.',
+          ts: now - 1000*60*30
+        },
+        {
+          id:'seed-2',
+          author:'Marketing Lead',
+          text:'Competitor model C2100E is the second highest-selling model in Europe — worth tracking as a benchmark for our compact EV positioning.',
+          ts: now - 1000*60*10
+        }
+      ],
+      general: []
+    };
+  }
+
+  function fmtTime(ts){
+    var d = new Date(ts);
+    var pad = function(n){ return n < 10 ? '0'+n : n; };
+    return pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  async function loadBoard(showSyncing){
+    var dot = document.querySelector('.sync-dot');
+    if(showSyncing && dot) dot.classList.add('syncing');
+    try{
+      var result = await window.storage.get(STORAGE_KEY, true);
+      board = result && result.value ? JSON.parse(result.value) : defaultBoard();
+      // backfill any categories added after initial deploy
+      CATEGORIES.forEach(function(c){ if(!board[c.id]) board[c.id] = []; });
+    }catch(e){
+      board = defaultBoard();
+      try{ await window.storage.set(STORAGE_KEY, JSON.stringify(board), true); }catch(e2){}
+    }
+    if(dot) dot.classList.remove('syncing');
+    render();
+  }
+
+  async function saveBoard(){
+    try{
+      await window.storage.set(STORAGE_KEY, JSON.stringify(board), true);
+      return true;
+    }catch(e){
+      console.error('Storage error', e);
+      return false;
+    }
+  }
+
+  function buildShell(){
+    var app = document.getElementById('app');
+    app.innerHTML =
+      '<div class="head">' +
+        '<div class="head-left">' +
+          '<div class="eyebrow">Voltwagen // Top Management Team</div>' +
+          '<h1>Team Channel</h1>' +
+          '<div class="sub">Shared decision &amp; intel log — visible to everyone who opens this board</div>' +
+        '</div>' +
+        '<div class="head-right">' +
+          '<div class="sync-row"><span class="sync-dot"></span><span id="sync-label">live</span></div>' +
+          '<button class="refresh-btn" id="refresh-btn">↻ refresh</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="tabs" id="tabs"></div>' +
+      '<div class="body" id="body"></div>' +
+      '<div class="footer-note">entries are shared &amp; permanent for this board · <button class="reset-link" id="reset-btn">clear all entries</button></div>';
+
+    document.getElementById('refresh-btn').addEventListener('click', function(){ loadBoard(true); });
+    document.getElementById('reset-btn').addEventListener('click', async function(){
+      if(confirm('Clear every entry on this board for the whole team? This cannot be undone.')){
+        board = defaultBoard();
+        await saveBoard();
+        render();
+      }
+    });
+  }
+
+  function render(){
+    if(!document.getElementById('tabs')) buildShell();
+    renderTabs();
+    renderBody();
+  }
+
+  function renderTabs(){
+    var tabsEl = document.getElementById('tabs');
+    tabsEl.innerHTML = CATEGORIES.map(function(c){
+      var n = (board[c.id] || []).length;
+      var active = c.id === activeTab ? 'active' : '';
+      return '<button class="tab ' + active + '" data-tab="' + c.id + '" style="--tab-color:' + c.color + '">' +
+        '<span class="dot" style="background:' + c.color + '"></span>' +
+        c.label + '<span class="count">' + n + '</span>' +
+        '</button>';
+    }).join('');
+    Array.prototype.forEach.call(tabsEl.querySelectorAll('.tab'), function(btn){
+      btn.addEventListener('click', function(){
+        activeTab = btn.getAttribute('data-tab');
+        render();
+      });
+    });
+  }
+
+  function renderBody(){
+    var cat = CATEGORIES.filter(function(c){ return c.id === activeTab; })[0];
+    var list = (board[cat.id] || []).slice().sort(function(a,b){ return b.ts - a.ts; });
+    var bodyEl = document.getElementById('body');
+
+    var entriesHtml;
+    if(list.length === 0){
+      entriesHtml = '<div class="empty">no entries yet in ' + cat.label.toLowerCase() + ' — be the first to log one</div>';
+    }else{
+      entriesHtml = '<div class="entries">' + list.map(function(e){
+        return '<div class="entry" style="--cat-color:' + cat.color + '">' +
+          '<div class="entry-meta">' +
+            '<span class="entry-author">' + escapeHtml(e.author || 'anonymous') + '</span>' +
+            '<span class="entry-time">' + fmtTime(e.ts) + '</span>' +
+          '</div>' +
+          '<div class="entry-text">' + escapeHtml(e.text) + '</div>' +
+        '</div>';
+      }).join('') + '</div>';
+    }
+
+    bodyEl.innerHTML =
+      '<div class="panel-label">' + cat.label + ' log</div>' +
+      entriesHtml +
+      '<div class="form" style="--cat-color:' + cat.color + '">' +
+        '<div class="form-row"><input type="text" id="author-input" placeholder="your name" /></div>' +
+        '<textarea id="text-input" placeholder="log a decision, update, or piece of intel for the team…"></textarea>' +
+        '<div class="form-footer">' +
+          '<span class="form-hint">shared with the whole team · enter to add a line break, button to post</span>' +
+          '<button class="submit-btn" id="post-btn" style="--cat-color:' + cat.color + '">Post to ' + cat.label + '</button>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById('post-btn').addEventListener('click', function(){ postEntry(cat.id); });
+  }
+
+  async function postEntry(catId){
+    var authorInput = document.getElementById('author-input');
+    var textInput = document.getElementById('text-input');
+    var btn = document.getElementById('post-btn');
+    var text = textInput.value.trim();
+    if(!text) { textInput.focus(); return; }
+    var author = authorInput.value.trim() || 'anonymous';
+
+    btn.disabled = true;
+    btn.textContent = 'Posting…';
+
+    var entry = { id: 'e-' + Date.now() + '-' + Math.floor(Math.random()*1000), author: author, text: text, ts: Date.now() };
+    board[catId] = board[catId] || [];
+    board[catId].push(entry);
+
+    var ok = await saveBoard();
+    if(!ok){
+      board[catId].pop();
+      alert('Could not save — check your connection and try again.');
+    }
+    btn.disabled = false;
+    render();
+    if(ok){
+      // keep author name for convenience, clear text
+      var newAuthorInput = document.getElementById('author-input');
+      if(newAuthorInput) newAuthorInput.value = author;
+    }
+  }
+
+  function startPolling(){
+    if(pollHandle) clearInterval(pollHandle);
+    pollHandle = setInterval(function(){
+      var typing = document.activeElement && (document.activeElement.id === 'text-input' || document.activeElement.id === 'author-input');
+      if(!typing) loadBoard(true);
+    }, 12000);
+  }
+
+  buildShell();
+  loadBoard(false).then(startPolling);
+
+})();
+</script>
